@@ -1,0 +1,17 @@
+{% extends "bootstrap_responsive.html" %}
+{% import "bootstrap_wtf.html" as wtf %}
+
+{% block body_content %}
+    {% include "navbar.html" %}
+    <div class="hero-unit span6 offset4 span-fixed-sidebar">
+{#   <div class="hero-unit">#}
+        {% include "flash.html" %}
+        <h4>Who do you want to follow?</h4>
+
+        <form method="POST" class="form-inline">
+            {{ form.batches }}
+            <button type="submit" class="btn" id="submit">Submit</button>
+        </form>
+    </div>
+{#    </div>#}
+{% endblock %}

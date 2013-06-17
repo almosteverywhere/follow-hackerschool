@@ -1,0 +1,18 @@
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#"><img height="48" width="48"
+                                           src="{{ url_for('static', filename='img/logo.png') }}"> Hackt</a>
+
+            <div class="navbar pull-right">
+                {% if session['hs_auth'] %}
+                    <ul class="nav">
+                        <li class="divider-vertical"></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="icon-user icon-white"></i>
+                            Logout</a></li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

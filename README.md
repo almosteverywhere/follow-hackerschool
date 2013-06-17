@@ -1,0 +1,1 @@
+Hackt is an application that allows you to double authenticate with hacker school and twitter and automatically follow all the students from a batch on twitter.

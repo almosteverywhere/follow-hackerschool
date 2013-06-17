@@ -1,2 +1,5 @@
 .idea/
 venv/
+*.pyc
+app/settings.cfg
+.DS_Store

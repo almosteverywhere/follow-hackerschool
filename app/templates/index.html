@@ -1,0 +1,38 @@
+{% extends "bootstrap_responsive.html" %}
+{% import "bootstrap_wtf.html" as wtf %}
+
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-extensions.css') }}">
+{% block body_content %}
+
+    {% include "navbar.html" %}
+
+    <div class="container">
+        <div class="hero-unit">
+            <h3>Follow Hacker Schoolers on Twitter</h3>
+            {% if session['hs_auth'] %}
+                <p>Sign in with Twitter, then select the batches you'd like to follow.
+                    If the person provided a twitter handle, you'll automagically start following them.
+                </p>
+
+                <p><a href="{{ url_for('login') }}" class="btn btn-primary btn-large"><i
+                        class="icon-user icon-white"></i> Sign
+                    in with Twitter &raquo;</a></p>
+                <br>
+            {% else %}
+                <p>Batch information is private, so please authenticate with your hackerschool account.</p>
+
+                <form method="POST">
+                    {#                    {{ form.email }}#}
+                    {#                    {{ form.password }}#}
+                    {{ form.hidden_tag() }}
+                    {{ wtf.form_errors(form, False) }}
+                    {{ wtf.horizontal_field(form.email) }}
+                    {{ wtf.horizontal_field(form.password) }}
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+            {% endif %}
+            {% include "flash.html" %}
+        </div>
+    </div>
+    {#    <script src="{{ url_for('static', filename='js/closeFlash.js') }}"></script>#}
+{% endblock %}
