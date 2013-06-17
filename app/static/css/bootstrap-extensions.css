@@ -10,11 +10,19 @@
     border-radius: 8px;
 }
 
+.li-spacer {
+    padding: 0px 5px 0px 5px;
+    line-height: 60px;
+}
+
+.navbar-nomargin {
+    margin-bottom: 0;
+}
 label {
     display: inline;
 }
 
-ul {
+ul#batches{
     list-style-type: none;
     margin: 0;
 }
