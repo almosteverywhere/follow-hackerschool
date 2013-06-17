@@ -8,7 +8,6 @@ from flask.ext.oauth import OAuth
 from models import Base, User, Batch, Person
 import requests
 
-
 #----------------------------------------
 # initialization
 #----------------------------------------
@@ -16,7 +15,7 @@ from wtforms import ValidationError, TextField, validators, PasswordField
 from wtforms.widgets import CheckboxInput
 
 app = Flask(__name__)
-app.config.from_envvar('APP_SETTINGS')
+app.config.from_object('app.settings.Config')
 Bootstrap(app)
 
 import helpers
