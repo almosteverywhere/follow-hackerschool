@@ -1,7 +1,12 @@
 {% extends "bootstrap_responsive.html" %}
 {% import "bootstrap_wtf.html" as wtf %}
 
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-extensions.css') }}">
+{% block style %}
+    {{ super() }}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-extensions.css') }}">
+
+{% endblock %}
+
 {% block body_content %}
 
     {% include "navbar.html" %}
@@ -10,8 +15,8 @@
         <div class="hero-unit">
             <h3>Follow Hacker Schoolers on Twitter</h3>
             {% if session['hs_auth'] %}
-                <p>Sign in with Twitter, then select the batches you'd like to follow.
-                    If the person provided a twitter handle, you'll automagically start following them.
+                <p>Sign in with Twitter, then select the batches you'd like to follow.</p>
+                <p>If the person provided a twitter handle, you'll automagically start following them.</p>
                 </p>
 
                 <p><a href="{{ url_for('login') }}" class="btn btn-primary btn-large"><i
