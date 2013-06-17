@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-
-Base = declarative_base();
+from app.database import Base
 
 class User(object):
     def __init__(self, token, secret):
@@ -23,7 +21,6 @@ class Batch(Base):
     def __repr__(self):
         return '<Batch Name %r>' % self.name
 
-
 class Person(Base):
     __tablename__='person'
     id = Column(Integer, primary_key=True)
@@ -39,4 +36,8 @@ class Person(Base):
 
     def __repr__(self):
         return '<Name %r Twitter Name %r>' % (self.name, self.twitter_screen_name)
+
+    @staticmethod
+    def people_in_batches(batch_ids):
+        return Person.query.filter(Person.batch_id.in_(batch_ids)).all()
 

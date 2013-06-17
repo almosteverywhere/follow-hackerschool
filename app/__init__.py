@@ -2,11 +2,12 @@ import os
 from flask import Flask, request, redirect, url_for, session, flash, g, \
     render_template
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import widgets, Form, SelectMultipleField, HiddenField
 from flask.ext.oauth import OAuth
+from database import db_session
 from models import Base, User, Batch, Person
 import requests
+import helpers
 
 #----------------------------------------
 # initialization
@@ -18,8 +19,14 @@ app = Flask(__name__)
 app.config.from_object('app.settings.Config')
 Bootstrap(app)
 
-import helpers
-db = SQLAlchemy(app)
+#----------------------------------------
+# database
+#----------------------------------------
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
+
 
 #----------------------------------------
 # oauth
@@ -71,11 +78,11 @@ class BatchForm(Form):
     batches = SelectMultipleField(
         widget=widgets.ListWidget(prefix_label=False),
         option_widget=widgets.CheckboxInput(),
-        choices=[(batch.id, batch.name) for batch in db.session.query(Batch).all()])
+        choices=[(batch.id, batch.name) for batch in Batch.query.all()])
 
 class HSLoginForm(Form):
     email = TextField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('New Password', [
+    password = PasswordField('Password', [
         validators.Required()
     ])
 
@@ -94,12 +101,9 @@ def index():
         email = form.email.data
         password = form.password.data
 
-        response = requests.get("https://www.hackerschool.com/auth",
-                            params={"email":email, "password": password})
-        if response.status_code == 200:
+        if helpers.authenticate_hackerschool(email, password):
             session['hs_auth'] = True
-            flash('You were logged in to hacker school', 'alert-success')
-        elif response.status_code == 401:
+        else:
             flash('Your hacker school login was incorrect' , 'alert-error')
 
     return render_template('index.html', form=form)
@@ -112,25 +116,19 @@ def follow():
 
     form = BatchForm()
     if request.method == 'POST':
-        follow_from_batch(form.data['batches'])
+        batches = (form.data['batches'])
+        if batches is None:
+            flash('Please select at least one batch', 'alert-error')
+        else:
+            people = Person.people_in_batches(batches)
+            followed, not_followed = helpers.follow(session['user'], people)
+
+            if followed:
+                flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')
+            if not_followed:
+                flash('These was an error following some hacker schoolers. %s people not followed.' % len(not_followed), 'alert-error')
 
     return render_template('follow.html', form=form)
-
-
-def follow_from_batch(batches):
-    if batches is None:
-        flash('Please select at least one batch', 'alert-error')
-        return
-
-    # fetch each twitter id from the selected batches
-    db_results = db.session.query(Person.twitter_screen_name).filter(Person.batch_id.in_(batches)).all()
-    screen_names = [result.twitter_screen_name for result in db_results]
-
-    try:
-        new_following = helpers.follow(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'], session['user'].token, session['user'].secret, screen_names)
-        flash('You are now following %s new hacker schoolers!' % new_following, 'alert-info')
-    except:
-        flash('Something went wrong. Try logging out and back in.', 'alert-error')
 
 @app.route('/logout')
 def logout():
@@ -138,6 +136,9 @@ def logout():
     flash('You were signed out')
     return redirect(url_for('index'))
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/favicon.ico')
 def favicon():

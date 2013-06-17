@@ -1,32 +1,46 @@
 import twitter
+import requests
+from models import *
+from settings import Config
 
-def follow(consumer_key, consumer_secret, token, secret, args):
+def follow(user, people):
+    """
+    user is of type models.User
+    screen_names is a list of twitter screen names to follow
+    """
     api = twitter.Api(
-        consumer_key=consumer_key,
-        consumer_secret=consumer_secret,
-        access_token_key=token,
-        access_token_secret=secret
+        consumer_key=Config.CONSUMER_KEY,
+        consumer_secret=Config.CONSUMER_SECRET,
+        access_token_key=user.token,
+        access_token_secret=user.secret
     )
 
-    user = api.VerifyCredentials()
-    if not (token, secret, args, user):
-        raise Exception('Arguments are missing or token and secret are not valid')
+    twitter_user = api.VerifyCredentials()
+    if twitter_user is None:
+        raise Exception('Invalid twitter authentication for user.')
 
     # don't let a user follow themselves
-    args.remove(user.GetScreenName)
+    screen_names = [person.twitter_screen_name for person in people]
+    if twitter_user.GetScreenName in screen_names: screen_names.remove(twitter_user.GetScreenName)
 
-    following = 0
-    for screen_name in args:
+    followed = []
+    not_followed = []
+
+    for screen_name in screen_names:
         try:
-            followed = api.CreateFriendship(screen_name=screen_name)
-            if followed is not None:
-                following += 1
-        except twitter.TwitterError as error:
-            # todo beef up the error handling
-            print ('An error occurred: %s' % error.message)
+            friendship = api.CreateFriendship(screen_name=screen_name)
+            if friendship is not None:
+                followed.append(screen_name)
+        except twitter.TwitterError:
+            not_followed.append(screen_name)
 
-    return following
+    return followed, not_followed
 
+def authenticate_hackerschool(email, password):
+    response = requests.get("https://www.hackerschool.com/auth",
+                            params={"email":email, "password": password})
+
+    return response.status_code == 200
 
 # def tweet():
 #     if not 'user' in session:
