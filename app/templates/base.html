@@ -1,0 +1,14 @@
+{% extends "bootstrap_responsive.html" %}
+{% import "bootstrap_wtf.html" as wtf %}
+
+{% block style %}
+    {{ super() }}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-extensions.css') }}">
+{% endblock %}
+
+{% block bootstrap_js_bottom %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/closeFlash.js') }}"></script>
+{% endblock %}
+
+

@@ -1,6 +1,6 @@
-/**
- * Extra large button extensions. Extends `.btn`.
- */
+/***/
+ /** Extra large button extensions. Extends `.btn`.*/
+ /**/
 .btn-xlarge {
     padding: 18px 28px;
     font-size: 22px;
@@ -18,11 +18,17 @@
 .navbar-nomargin {
     margin-bottom: 0;
 }
-label {
-    display: inline;
-}
 
 ul#batches{
     list-style-type: none;
+}
+
+#batches input {
+    float: left;
     margin: 0;
+}
+
+#batches label {
+    display: inline-block;
+    margin: 0 0 0 10px;
 }

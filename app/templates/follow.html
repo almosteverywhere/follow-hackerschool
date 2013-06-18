@@ -1,28 +1,32 @@
-{% extends "bootstrap_responsive.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
-
-{% block style %}
-    {{ super() }}
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-extensions.css') }}">
-
-{% endblock %}
+{% extends "base.html" %}
 
 {% block bootstrap_js_bottom %}
-  {{super()}}
-  <script src="{{url_for('static', filename='js/closeFlash.js')}}"></script>
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/bootstrap-tooltip.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-popover.js') }}"></script>
 {% endblock %}
 
 {% block body_content %}
     {% include "navbar.html" %}
-    <div class="hero-unit">
-{#   <div class="hero-unit">#}
-        {% include "flash.html" %}
-        <h4>Who do you want to follow?</h4>
+    <div class="container">
+        <div class="well">
+            {% include "flash.html" %}
+            <form method="POST" class="form-inline">
+                <h4>Who do you want to follow?</h4>
+                {{ form.batches }}
+                <h4>Tweet about Hackt?
+                    <a href="#" id="preview-tweet" class="btn btn-info btn-small" rel="tooltip"
+                       data-trigger="hover"
+                       data-content="fill me in"
+                       data-original-title="Preview"><i class="icon-white icon-info-sign"> </i></a>
 
-        <form method="POST" class="form-inline">
-            {{ form.batches }}
-            <button type="submit" class="btn btn-primary start" id="load" data-loading-text="<i class='icon-upload icon-white'></i> Working...">Submit</button>
-        </form>
+                </h4>
+                {{ form.should_tweet(value='y') }} {{ form.should_tweet.label }}
+                <br><br>
+                <button type="submit" class="btn btn-primary start" id="load"
+                        data-loading-text="<i class='icon-upload icon-white'></i> Working...">Submit
+                </button>
+            </form>
+        </div>
     </div>
-{#    </div>#}
 {% endblock %}
