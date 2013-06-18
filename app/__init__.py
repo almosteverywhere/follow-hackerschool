@@ -3,6 +3,8 @@ from flask import Flask, request, redirect, url_for, session, flash, g, \
     render_template
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import widgets, Form, SelectMultipleField, HiddenField
+from wtforms import ValidationError, TextField, validators, PasswordField, BooleanField
+from wtforms.widgets import CheckboxInput
 from flask.ext.oauth import OAuth
 from database import db_session
 from models import Base, User, Batch, Person
@@ -12,8 +14,6 @@ import helpers
 #----------------------------------------
 # initialization
 #----------------------------------------
-from wtforms import ValidationError, TextField, validators, PasswordField
-from wtforms.widgets import CheckboxInput
 
 app = Flask(__name__)
 app.config.from_object('app.settings.Config')
@@ -25,8 +25,6 @@ Bootstrap(app)
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
-
-
 
 #----------------------------------------
 # oauth
@@ -75,6 +73,7 @@ def oauth_authorized(resp):
 #----------------------------------------
 
 class BatchForm(Form):
+    should_tweet = BooleanField(label='Yes! Tell the world.', default='y')
     batches = SelectMultipleField(
         widget=widgets.ListWidget(prefix_label=False),
         option_widget=widgets.CheckboxInput(),
@@ -121,12 +120,18 @@ def follow():
             flash('Please select at least one batch', 'alert-error')
         else:
             people = Person.people_in_batches(batches)
-            followed, not_followed = helpers.follow(session['user'], people)
 
-            if followed:
-                flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')
-            if not_followed:
-                flash('These was an error following some hacker schoolers. %s people not followed.' % len(not_followed), 'alert-error')
+            try:
+                followed, not_followed = helpers.follow(session['user'], people)
+
+                if followed:
+                    flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')
+                if not_followed:
+                    flash('These was an error following some hacker schoolers. %s people not followed.' % len(not_followed), 'alert-error')
+
+            except ValueError:
+                flash('The twitter user is not properly authenticated. Please login again.', 'alert-error')
+                return redirect(url_for('login'))
 
     return render_template('follow.html', form=form)
 

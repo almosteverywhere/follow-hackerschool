@@ -17,20 +17,19 @@ def follow(user, people):
 
     twitter_user = api.VerifyCredentials()
     if twitter_user is None:
-        raise Exception('Invalid twitter authentication for user.')
+        raise ValueError('Invalid twitter authentication for user.')
 
     # don't let a user follow themselves
     screen_names = [person.twitter_screen_name for person in people]
-    if twitter_user.GetScreenName in screen_names: screen_names.remove(twitter_user.GetScreenName)
+    if twitter_user.GetScreenName() in screen_names: screen_names.remove(twitter_user.GetScreenName())
 
     followed = []
     not_followed = []
 
     for screen_name in screen_names:
         try:
-            friendship = api.CreateFriendship(screen_name=screen_name)
-            if friendship is not None:
-                followed.append(screen_name)
+            api.CreateFriendship(screen_name=screen_name)
+            followed.append(screen_name)
         except twitter.TwitterError:
             not_followed.append(screen_name)
 
