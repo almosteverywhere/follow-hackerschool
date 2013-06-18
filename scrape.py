@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import requests
 import pyquery as pq
 import sys
-from app.models import *
+from database.models import *
 import getpass
 from app import app
 from flask.ext.sqlalchemy import SQLAlchemy
