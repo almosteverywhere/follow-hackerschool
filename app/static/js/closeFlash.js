@@ -4,5 +4,6 @@ $('#load').on('click', function () {
 });
 
 $(document).ready(function () {
-    $('#preview-tweet').popover({trigger: "hover"});
+    $('#preview-tweet').popover({trigger: "hover",
+    html: true});
 });

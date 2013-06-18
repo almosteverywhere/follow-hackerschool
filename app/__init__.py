@@ -51,6 +51,7 @@ def login():
     return twitter_oauth.authorize(callback=url_for('oauth_authorized',
                                                     next=request.args.get('next') or request.referrer or None))
 
+
 @app.route('/oauth-authorized')
 @twitter_oauth.authorized_handler
 def oauth_authorized(resp):
@@ -79,6 +80,7 @@ class BatchForm(Form):
         option_widget=widgets.CheckboxInput(),
         choices=[(batch.id, batch.name) for batch in Batch.query.all()])
 
+
 class HSLoginForm(Form):
     email = TextField('Email Address', [validators.Length(min=6, max=35)])
     password = PasswordField('Password', [
@@ -91,7 +93,7 @@ class HSLoginForm(Form):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if session.has_key('hs_auth') and session.has_key('user') :
+    if session.has_key('hs_auth') and session.has_key('user'):
         return redirect(url_for('follow'))
 
     form = HSLoginForm()
@@ -103,7 +105,7 @@ def index():
         if helpers.authenticate_hackerschool(email, password):
             session['hs_auth'] = True
         else:
-            flash('Your hacker school login was incorrect' , 'alert-error')
+            flash('Your hacker school login was incorrect', 'alert-error')
 
     return render_template('index.html', form=form)
 
@@ -119,15 +121,22 @@ def follow():
         if not batches:
             flash('Please select at least one batch', 'alert-error')
         else:
-            people = Person.people_in_batches(batches)
+            user = session['user']
 
+            if form.data['should_tweet']:
+                tweet_error = helpers.tweet(user)
+                if tweet_error:
+                    flash('Something went wrong posting the tweet. Error: %s' % tweet_error['msg'], 'alert-error')
+
+            people = Person.people_in_batches(batches)
             try:
-                followed, not_followed = helpers.follow(session['user'], people)
+                followed, not_followed = helpers.follow(user, people)
 
                 if followed:
                     flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')
                 if not_followed:
-                    flash('These was an error following some hacker schoolers. %s people not followed.' % len(not_followed), 'alert-error')
+                    flash('These was an error following some hacker schoolers. %s people not followed.' % len(
+                        not_followed), 'alert-error')
 
             except ValueError:
                 flash('The twitter user is not properly authenticated. Please login again.', 'alert-error')
@@ -135,15 +144,18 @@ def follow():
 
     return render_template('follow.html', form=form)
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You were signed out')
     return redirect(url_for('index'))
 
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 @app.route('/favicon.ico')
 def favicon():

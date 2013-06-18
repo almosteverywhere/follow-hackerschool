@@ -17,9 +17,8 @@
                 <h4>Tweet about Hackt?
                     <a href="#" id="preview-tweet" class="btn btn-info btn-small" rel="tooltip"
                        data-trigger="hover"
-                       data-content="fill me in"
+                       data-content="<div><img src='{{ url_for('static', filename='img/twitter_preview.png') }}'></div>"
                        data-original-title="Preview"><i class="icon-white icon-info-sign"> </i></a>
-
                 </h4>
                 {{ form.should_tweet(value='y') }} {{ form.should_tweet.label }}
                 <br><br>

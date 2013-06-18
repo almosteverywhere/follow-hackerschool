@@ -3,14 +3,8 @@ import requests
 from database.models import *
 from settings import Config
 
-def follow(user, people):
-    """
-    user is of type models.User
-    screen_names is a list of twitter screen names to follow
 
-    Ideally, this task should run in a background process or worker,
-    but those features are not supported by a free heroku instance
-    """
+def get_api(user):
     api = twitter.Api(
         consumer_key=Config.CONSUMER_KEY,
         consumer_secret=Config.CONSUMER_SECRET,
@@ -22,9 +16,23 @@ def follow(user, people):
     if twitter_user is None:
         raise ValueError('Invalid twitter authentication for user.')
 
+    return api
+
+
+def follow(user, people):
+    """
+    user is of type models.User
+    screen_names is a list of twitter screen names to follow
+
+    Ideally, this task should run in a background process or worker,
+    but those features are not supported by a free heroku instance
+    """
+    api = get_api(user)
+    current_screen_name = api.VerifyCredentials().GetScreenName()
+
     # don't let a user follow themselves
     screen_names = [person.twitter_screen_name for person in people]
-    if twitter_user.GetScreenName() in screen_names: screen_names.remove(twitter_user.GetScreenName())
+    if current_screen_name in screen_names: screen_names.remove(current_screen_name)
 
     followed = []
     not_followed = []
@@ -38,28 +46,19 @@ def follow(user, people):
 
     return followed, not_followed
 
+
+def tweet(user):
+    api = get_api(user)
+    msg = 'I used hackt to follow @hackerschool batches on twitter. You can too at http://bit.ly/try_hackt'
+
+    try:
+        api.PostUpdate(msg)
+    except twitter.TwitterError as error:
+        return {'msg': error.message[0]['message']}
+
+
 def authenticate_hackerschool(email, password):
     response = requests.get("https://www.hackerschool.com/auth",
-                            params={"email":email, "password": password})
+                            params={"email": email, "password": password})
 
     return response.status_code == 200
-
-# def tweet():
-#     if not 'user' in session:
-#         return redirect(url_for('login', next=request.url))
-#
-#     status = request.form['tweet']
-#     if not status:
-#         return redirect(url_for('index'))
-#
-#     resp = twitter.post('statuses/update.json', data={
-#         'status': status
-#     })
-#     if resp.status == 403:
-#         flash('Your tweet was too long.')
-#     elif resp.status == 401:
-#         flash('Authorization error with Twitter.')
-#     else:
-#         flash('Successfully tweeted your tweet (ID: #%s)' % resp.data['id'])
-#     return redirect(url_for('index'))
-
