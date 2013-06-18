@@ -6,8 +6,8 @@ from flask.ext.wtf import widgets, Form, SelectMultipleField, HiddenField
 from wtforms import ValidationError, TextField, validators, PasswordField, BooleanField
 from wtforms.widgets import CheckboxInput
 from flask.ext.oauth import OAuth
-from database import db_session
-from models import Base, User, Batch, Person
+from database.database import db_session
+from database.models import Base, User, Batch, Person
 import requests
 import helpers
 
@@ -73,7 +73,7 @@ def oauth_authorized(resp):
 #----------------------------------------
 
 class BatchForm(Form):
-    should_tweet = BooleanField(label='Yes! Tell the world.', default='y')
+    should_tweet = BooleanField(label='Yes! Tell your friends', default='y')
     batches = SelectMultipleField(
         widget=widgets.ListWidget(prefix_label=False),
         option_widget=widgets.CheckboxInput(),
@@ -116,7 +116,7 @@ def follow():
     form = BatchForm()
     if request.method == 'POST':
         batches = (form.data['batches'])
-        if batches is None:
+        if not batches:
             flash('Please select at least one batch', 'alert-error')
         else:
             people = Person.people_in_batches(batches)

@@ -1,12 +1,15 @@
 import twitter
 import requests
-from models import *
+from database.models import *
 from settings import Config
 
 def follow(user, people):
     """
     user is of type models.User
     screen_names is a list of twitter screen names to follow
+
+    Ideally, this task should run in a background process or worker,
+    but those features are not supported by a free heroku instance
     """
     api = twitter.Api(
         consumer_key=Config.CONSUMER_KEY,
