@@ -2,7 +2,6 @@ from __future__ import absolute_import
 import requests
 import pyquery as pq
 import sys
-from database.models import *
 import getpass
 from app import app
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -11,6 +10,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 # Borrowed heavily from https://github.com/einashaddad/follow
 
 db = SQLAlchemy(app)
+from database.models import *
 host = 'https://www.hackerschool.com'
 
 def scrape_hs(hs_email, hs_password, host):
