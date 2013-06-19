@@ -7,7 +7,7 @@ class Config(object):
     CONSUMER_KEY = os.getenv('CONSUMER_KEY', 'VLFXgP5KwaaOcHwIj1g5w')
     CONSUMER_SECRET = os.getenv('CONSUMER_SECRET', 'ccEpq0ztdpMbJgbj0vAOemIq3f9PJBE0FKtIxMHvl4')
 
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://nina:password:@localhost:5432/scrape2')
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:////tmp/test.db')
 
     DEBUG = os.getenv('DEBUG', True)
     SECRET_KEY = os.getenv('SECRET_KEY', 'development key')
