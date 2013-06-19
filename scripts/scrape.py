@@ -3,13 +3,14 @@ import requests
 import pyquery as pq
 import sys
 import getpass
-from app import app
+import hackt
 from flask.ext.sqlalchemy import SQLAlchemy
 
 # Quick and dirty scraper for hacker school batch info.
 # Borrowed heavily from https://github.com/einashaddad/follow
 
-db = SQLAlchemy(app)
+application = hackt.create_app()
+db = SQLAlchemy(application)
 from database.models import *
 host = 'https://www.hackerschool.com'
 

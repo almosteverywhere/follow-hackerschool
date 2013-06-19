@@ -1,22 +1,16 @@
-import os
-from flask import Flask, request, redirect, url_for, session, flash, g, \
-    render_template
+from flask import Flask, request, redirect, url_for, session, flash, render_template
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.wtf import widgets, Form, SelectMultipleField, HiddenField
-from wtforms import ValidationError, TextField, validators, PasswordField, BooleanField
-from wtforms.widgets import CheckboxInput
+from flask.ext.wtf import widgets, Form, SelectMultipleField
+from wtforms import TextField, validators, PasswordField, BooleanField
 from flask.ext.oauth import OAuth
 from database.database import db_session
-from database.models import Base, User, Batch, Person
-import requests
-import helpers
+from database.models import User, Batch, Person
+from hackt.config import Config
 
 #----------------------------------------
 # initialization
 #----------------------------------------
-
 app = Flask(__name__)
-app.config.from_object('app.settings.Config')
 Bootstrap(app)
 
 #----------------------------------------
@@ -35,9 +29,8 @@ twitter_oauth = oauth.remote_app('twitter',
                                  request_token_url='https://api.twitter.com/oauth/request_token',
                                  access_token_url='https://api.twitter.com/oauth/access_token',
                                  authorize_url='https://api.twitter.com/oauth/authenticate',
-                                 consumer_key=app.config['CONSUMER_KEY'],
-                                 consumer_secret=app.config['CONSUMER_SECRET']
-)
+                                 consumer_key=Config.CONSUMER_KEY,
+                                 consumer_secret=Config.CONSUMER_SECRET)
 
 
 @twitter_oauth.tokengetter
@@ -83,9 +76,7 @@ class BatchForm(Form):
 
 class HSLoginForm(Form):
     email = TextField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('Password', [
-        validators.Required()
-    ])
+    password = PasswordField('Password', [validators.Required()])
 
 #----------------------------------------
 # controllers
@@ -98,11 +89,11 @@ def index():
 
     form = HSLoginForm()
     if request.method == 'POST' and form.validate_on_submit():
-        # auth with hacker school, if valid set session variable
         email = form.email.data
         password = form.password.data
 
-        if helpers.authenticate_hackerschool(email, password):
+        from hackt.helpers import authenticate_hackerschool
+        if authenticate_hackerschool(email, password):
             session['hs_auth'] = True
         else:
             flash('Your hacker school login was incorrect', 'alert-error')
@@ -124,13 +115,15 @@ def follow():
             user = session['user']
 
             if form.data['should_tweet']:
-                tweet_error = helpers.tweet(user)
+                from hackt.helpers import tweet
+                tweet_error = tweet(user)
                 if tweet_error:
                     flash('Something went wrong posting the tweet. Error: %s' % tweet_error['msg'], 'alert-error')
 
             people = Person.people_in_batches(batches)
             try:
-                followed, not_followed = helpers.follow(user, people)
+                from hackt.helpers import follow
+                followed, not_followed = follow(user, people)
 
                 if followed:
                     flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')

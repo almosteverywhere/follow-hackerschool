@@ -1,8 +1,6 @@
 import twitter
 import requests
-from database.models import *
-from settings import Config
-
+from hackt.config import Config
 
 def get_api(user):
     api = twitter.Api(

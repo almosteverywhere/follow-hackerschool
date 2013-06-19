@@ -2,7 +2,7 @@ import os
 
 class Config(object):
     """
-    Default configuration, with test values for comsumer key & secret
+    Default configuration, with test values for consumer key & secret
     """
     CONSUMER_KEY = os.getenv('CONSUMER_KEY', 'VLFXgP5KwaaOcHwIj1g5w')
     CONSUMER_SECRET = os.getenv('CONSUMER_SECRET', 'ccEpq0ztdpMbJgbj0vAOemIq3f9PJBE0FKtIxMHvl4')

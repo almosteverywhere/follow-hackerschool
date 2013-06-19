@@ -12,6 +12,8 @@
         <div class="well">
             {% include "flash.html" %}
             <form method="POST" class="form-inline">
+                {{ form.hidden_tag() }}
+                {{ wtf.form_errors(form, False) }}
                 <h4>Who do you want to follow?</h4>
                 {{ form.batches }}
                 <h4>Tweet about Hackt?

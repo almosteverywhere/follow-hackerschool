@@ -1,5 +1,6 @@
 .idea/
 venv/
 *.pyc
-app/settings.cfg
 .DS_Store
+hackt/settings.cfg
+.elasticbeanstalk/
