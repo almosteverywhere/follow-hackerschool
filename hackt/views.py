@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, session, flash, render_template
+from flask import Flask, request, redirect, url_for, session, flash, render_template, g
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import widgets, Form, SelectMultipleField
 from wtforms import TextField, validators, PasswordField, BooleanField
@@ -53,14 +53,18 @@ def oauth_authorized(resp):
         flash(u'You denied the request to sign in.')
         return redirect(next_url)
 
-    access_token = resp['oauth_token']
-    access_secret = resp['oauth_token_secret']
-    user = User(access_token, access_secret)
-    session['user'] = user
+    session['token'] = resp['oauth_token']
+    session['secret'] = resp['oauth_token_secret']
 
     # revisit this later, let's hardcode for now
     #return redirect(next_url)
     return redirect(url_for('follow'))
+
+@app.before_request
+def make_user():
+    g.user = None
+    if 'token' in session and 'secret' in session:
+        g.user = User(session['token'], session['secret'])
 
 #----------------------------------------
 # forms
@@ -84,7 +88,7 @@ class HSLoginForm(Form):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if session.has_key('hs_auth') and session.has_key('user'):
+    if session.has_key('hs_auth') and g.user is not None:
         return redirect(url_for('follow'))
 
     form = HSLoginForm()
@@ -103,7 +107,7 @@ def index():
 
 @app.route('/follow', methods=['GET', 'POST'])
 def follow():
-    if not 'user' in session:
+    if g.user is None:
         return redirect(url_for('login'))
 
     form = BatchForm()
@@ -112,18 +116,16 @@ def follow():
         if not batches:
             flash('Please select at least one batch', 'alert-error')
         else:
-            user = session['user']
-
             if form.data['should_tweet']:
                 from hackt.helpers import tweet
-                tweet_error = tweet(user)
+                tweet_error = tweet(g.user)
                 if tweet_error:
                     flash('Something went wrong posting the tweet. Error: %s' % tweet_error['msg'], 'alert-error')
 
             people = Person.people_in_batches(batches)
             try:
                 from hackt.helpers import follow
-                followed, not_followed = follow(user, people)
+                followed, not_followed = follow(g.user, people)
 
                 if followed:
                     flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')

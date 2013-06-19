@@ -7,9 +7,6 @@ class User(object):
         self.token = token
         self.secret = secret
 
-    def __repr__(self):
-        return 'token: %s secret: %s' % (self.token, self.secret)
-
 class Batch(Base):
     __tablename__ = 'batch'
     id = Column(Integer, primary_key=True)
