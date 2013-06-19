@@ -9,7 +9,7 @@ class Config(object):
 
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:////tmp/test.db')
 
-    DEBUG = os.getenv('DEBUG', True)
+    DEBUG = os.getenv('DEBUG', False)
     SECRET_KEY = os.getenv('SECRET_KEY', 'development key')
 
     BOOTSTRAP_USE_MINIFIED = True
