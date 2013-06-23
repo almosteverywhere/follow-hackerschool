@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import requests
 import pyquery as pq
 import sys

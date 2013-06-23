@@ -5,13 +5,18 @@ Flask-SQLAlchemy==0.16
 Flask-WTF==0.8.3
 Jinja2==2.7
 MarkupSafe==0.18
+Pygments==1.6
 SQLAlchemy==0.8.1
 WTForms==1.0.4
 Werkzeug==0.9.1
+cssselect==0.8
 distribute==0.6.35
 httplib2==0.8
 itsdangerous==0.21
+lxml==3.2.1
 oauth2==1.5.211
+psycopg2==2.5
+pyquery==1.2.4
 python-twitter==1.0
 requests==1.2.3
 simplejson==3.3.0
@@ -20,4 +25,3 @@ virtualenv==1.9.1
 virtualenv-clone==0.2.4
 virtualenvwrapper==3.7
 wsgiref==0.1.2
-MySQL-python==1.2.3
