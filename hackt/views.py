@@ -6,6 +6,8 @@ from flask.ext.oauth import OAuth
 from database.database import db_session
 from database.models import User, Batch, Person
 from hackt.config import Config
+import tasks
+import requests
 
 #----------------------------------------
 # initialization
@@ -60,6 +62,7 @@ def oauth_authorized(resp):
     #return redirect(next_url)
     return redirect(url_for('follow'))
 
+
 @app.before_request
 def make_user():
     g.user = None
@@ -96,13 +99,18 @@ def index():
         email = form.email.data
         password = form.password.data
 
-        from hackt.helpers import authenticate_hackerschool
         if authenticate_hackerschool(email, password):
             session['hs_auth'] = True
         else:
             flash('Your hacker school login was incorrect', 'alert-error')
 
     return render_template('index.html', form=form)
+
+
+def authenticate_hackerschool(email, password):
+    response = requests.get("https://www.hackerschool.com/auth",
+                            params={"email": email, "password": password})
+    return response.status_code == 200
 
 
 @app.route('/follow', methods=['GET', 'POST'])
@@ -117,25 +125,12 @@ def follow():
             flash('Please select at least one batch', 'alert-error')
         else:
             if form.data['should_tweet']:
-                from hackt.helpers import tweet
-                tweet_error = tweet(g.user)
-                if tweet_error:
-                    flash('Something went wrong posting the tweet. Error: %s' % tweet_error['msg'], 'alert-error')
+                tasks.tweet.delay(g.user)
 
             people = Person.people_in_batches(batches)
-            try:
-                from hackt.helpers import follow
-                followed, not_followed = follow(g.user, people)
-
-                if followed:
-                    flash('You are now following %s new hacker schoolers!' % len(followed), 'alert-info')
-                if not_followed:
-                    flash('These was an error following some hacker schoolers. %s people not followed.' % len(
-                        not_followed), 'alert-error')
-
-            except ValueError:
-                flash('The twitter user is not properly authenticated. Please login again.', 'alert-error')
-                return redirect(url_for('login'))
+            tasks.follow.delay(g.user, people)
+            flash('Great! Check your Twitter following page in a few minutes to find %s new people.' % len(people),
+                  'alert-success')
 
     return render_template('follow.html', form=form)
 
